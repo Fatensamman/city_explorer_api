@@ -1,6 +1,11 @@
 # city_explorer_api
+**Version**: 1.0.0 
 
 **Author**: Faten Samman
+
+## Overview
+ this application to explore cities and some its properties like location and weather.
+
 
 ### Feature: 1. Repository Set Up
 
@@ -24,10 +29,21 @@ Actual time needed to complete: __50 min___
 
 ### Feature: 3. Weather
 
-Estimate of time needed to complete: __2 hour___
+Estimate of time needed to complete: __2 hours___
 
 Start time: ___4:00__
 
 Finish time: ___5:00_
 
 Actual time needed to complete: __one hour___
+
+### Feature: 4.  Errors
+
+Estimate of time needed to complete: 15 min__
+
+Start time: ___5:10__
+
+Finish time: ___5:30_
+
+Actual time needed to complete: 20 min
+

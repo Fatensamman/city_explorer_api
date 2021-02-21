@@ -26,8 +26,8 @@ Actual time needed to complete: __50 min___
 
 Estimate of time needed to complete: __2 hour___
 
-Start time: ___3:00__
+Start time: ___4:00__
 
-Finish time: ___3:50_
+Finish time: ___5:00_
 
-Actual time needed to complete: __50 min___
+Actual time needed to complete: __one hour___

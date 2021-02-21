@@ -26,19 +26,15 @@ server.get('/weather', (req, res) => {
     })
     res.send(newA);
     console.log(newA);
-})
-// [
-//     {
-//       "forecast": "Partly cloudy until afternoon.",
-//       "time": "Mon Jan 01 2001"
-//     },
-//     {
-//       "forecast": "Mostly cloudy in the morning.",
-//       "time": "Tue Jan 02 2001"
-//     },
-//     ...
-//   ]
+});
 
+server.use('*',(req,res)=>{
+res.status(500).send(error)
+});
+const error = {
+    status : 500,
+    responseText: "Sorry, something went wrong"
+}
 function SiteWeather(weatherdata) {
    
         this.forecast = weatherdata.weather.description;

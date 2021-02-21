@@ -18,6 +18,16 @@ Estimate of time needed to complete: __1 hour___
 
 Start time: ___3:00__
 
-Finish time: ____
+Finish time: ___3:50_
 
-Actual time needed to complete: _____
+Actual time needed to complete: __50 min___
+
+### Feature: 3. Weather
+
+Estimate of time needed to complete: __2 hour___
+
+Start time: ___4:00__
+
+Finish time: ___5:00_
+
+Actual time needed to complete: __one hour___

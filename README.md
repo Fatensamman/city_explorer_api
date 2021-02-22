@@ -6,7 +6,11 @@
 ## Overview
  this application to explore cities and some its properties like location and weather.
 
+## Architecture
+node.js , express.js
 
+## Change Log:
+## lab 6
 ### Feature: 1. Repository Set Up
 
 Estimate of time needed to complete: __15 min___
@@ -47,3 +51,44 @@ Finish time: ___5:30_
 
 Actual time needed to complete: 20 min
 
+## lab 07
+
+### Feature: 1.Data formatting 
+
+Estimate of time needed to complete: 15 min__
+
+Start time: ___2:45__
+
+Finish time: ___3:08_
+
+Actual time needed to complete: 23 min
+
+### Feature: 2. Locations
+
+Estimate of time needed to complete: 1 hour and a half__
+
+Start time: ___3:10__
+
+Finish time: ___4:20_
+
+Actual time needed to complete: hour and 10 min
+
+### Feature: 3. weather
+
+Estimate of time needed to complete: two hours__
+
+Start time: ___4:20__
+
+Finish time: ___6:20_
+
+Actual time needed to complete: two hours
+
+### Feature: 3. weather
+
+Estimate of time needed to complete: two hours__
+
+Start time: ___7:10__
+
+Finish time: ___
+
+Actual time needed to complete:

@@ -47,3 +47,14 @@ Finish time: ___5:30_
 
 Actual time needed to complete: 20 min
 
+## lab 07
+
+### Feature: 1.Data formatting 
+
+Estimate of time needed to complete: 15 min__
+
+Start time: ___2:45__
+
+Finish time: ___5:30_
+
+Actual time needed to complete: 20 min

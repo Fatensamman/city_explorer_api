@@ -10,7 +10,7 @@ const pg = require('pg');
 const server = express();
 const PORT = process.env.PORT || 3030;
 server.use(cors());
-const client = new pg.Client({ connectionString: process.env.DATABASE_URL, });
+const client = new pg.Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false }});
 // ssl: { rejectUnauthorized: false }
 
 //route definitions
@@ -23,62 +23,12 @@ server.get('/parks', parkhandeler)
 server.get('/hi', ((req, res) => {
     res.send('hhhhhhhhhhh');
 }))
-// testing
-// server.get('/locations', (req, res) => {
-//     let SQL = `SELECT * FROM locations;`;
-//     client.query(SQL)
-//         .then(results => {
-//             // res.send(results.rows);
-//             res.send('results.rows');
-//         })
-//         .catch((error) => {
-//             res.send('Error:', error.massage);
-//         });
-// });
-// localhost:4040/addcountry?city=amman
-server.get('/addCountry', (req, res) => {
-    let city = req.query.city;
-    console.log(req.query)
-    let SQL = `INSERT INTO locations VALUES ($1) RETURNING *;`;
-    let safeValues = [city];
-    client.query(SQL, safeValues)
-        .then((result) => {
-            res.send(result.rows);
 
-        })
-        .catch((error) => {
-            res.send('Error:', error.massage);
-        });
-})
 // functions decleration
 function testhandeler(req, res) {
     res.send('test');
 };
 
-
-// https://city-explorer-backend.herokuapp.com/location?city=amman
-// function locaHandeler(req, res) {
-//     const cityName = req.query.city;
-//     const key = process.env.GEOCODE_API_KEY;
-//     const url = `https://us1.locationiq.com/v1/search.php?key=${key}&q=${cityName}&format=json`;
-//     let SQL = `SELECT * FROM locations WHERE search_query=$1;`;
-//     let safeValues = [cityName];
-//     client.query(SQL, safeValues)
-//         .then((result) => {
-//             if (result.rowCount > 0) {
-//                 res.send(result.rows[0]);
-//             } else {
-//                 superagent.get(url)
-//                     .then(citydata => {
-//                         const locObj = new Sitelocation(cityName, citydata.body[0]);
-
-//                         res.status(200).json(locObj);
-//                     });
-//             }
-
-
-//         })
-// };
 
 
 function locaHandeler(req, res) {

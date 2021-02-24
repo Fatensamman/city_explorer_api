@@ -10,7 +10,7 @@ const pg = require('pg');
 const server = express();
 const PORT = process.env.PORT || 3030;
 server.use(cors());
-const client = new pg.Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false }});
+const client = new pg.Client({ connectionString: process.env.DATABASE_URL});
 // ssl: { rejectUnauthorized: false }
 
 //route definitions
@@ -18,8 +18,9 @@ server.get('/test', testhandeler);
 server.get('/location', locaHandeler);
 server.get('/weather', weatherHandeler);
 server.get('/parks', parkhandeler)
-// server.get('*', notfound);
-// server.use(errorhandler);
+server.get('/movies', movieshandeler)
+server.get('*', notfound);
+server.use(errorhandler);
 server.get('/hi', ((req, res) => {
     res.send('hhhhhhhhhhh');
 }))
@@ -29,56 +30,54 @@ function testhandeler(req, res) {
     res.send('test');
 };
 
-
-
 function locaHandeler(req, res) {
-	let city = req.query.city;
+    let city = req.query.city;
 
-	//data from API
-	let key = process.env.GEOCODE_API_KEY;
-	let url = `https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
+    //data from API
+    let key = process.env.GEOCODE_API_KEY;
+    let url = `https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
 
-	//data from database
-	let SQL = `SELECT * FROM locations;`;
+    //data from database
+    let SQL = `SELECT * FROM locations;`;
 
-	client
-		.query(SQL)
-		.then((results) => {
-			if (!city) {
-				client.query(SQL).then((results) => {
-					res.send(results.rows);
-				});
-			} else if (results.rows.find((row) => row.search_query === city)) {
-				res.json(results.rows.find((row) => row.search_query === city));
-			} else {
-				superagent.get(url).then((data) => {
-					const locationData = new Sitelocation(city, data.body[0]);
+    client.query(SQL)
+        .then((results) => {
+            if (!city) {
+                client.query(SQL).then((results) => {
+                    res.send(results.rows);
+                });
+                
+            } else if (results.rows.find((row) => row.search_query === city)) {
+                res.json(results.rows.find((row) => row.search_query === city));
+            } else {
+                superagent.get(url).then((data) => {
+                    const locationData = new Sitelocation(city, data.body[0]);
 
-					let SQL = `INSERT INTO locations VALUES ($1,$2,$3,$4) RETURNING *;`;
+                    let SQL = `INSERT INTO locations VALUES ($1,$2,$3,$4) RETURNING *;`;
 
-					let safeValues = [
-						city,
-						locationData.formatted_query,
-						locationData.latitude,
-						locationData.longitude,
-					];
+                    let safeValues = [
+                        city,
+                        locationData.formatted_query,
+                        locationData.latitude,
+                        locationData.longitude,
+                    ];
 
-					client
-						.query(SQL, safeValues)
-						.then((results) => {
-							locationData;
-							res.json(results.rows);
-						})
-						.catch((error) => {
-							res.json(error.message);
-						});
-				});
-			}
-		})
-		.catch((error) => {
-			res.json(error.message);
-		});
+                    client
+                        .query(SQL, safeValues)
+                        .then((results) => {
+                            res.json(results.rows);
+                        })
+                        .catch((error) => {
+                            res.json(error.message);
+                        });
+                });
+            }
+        })
+        .catch((error) => {
+            res.json(error.message);
+        });
 }
+
 function weatherHandeler(req, res) {
     const cityName = req.query.search_query;
     const lat = req.query.latitude;
@@ -92,6 +91,9 @@ function weatherHandeler(req, res) {
             const weatherData = dataW.body.data.map(elem => new SiteWeather(elem));
             res.status(200).json(weatherData);
         })
+        .catch((error) => {
+            res.json(error.message);
+        });
 };
 
 function parkhandeler(req, res) {
@@ -105,6 +107,25 @@ function parkhandeler(req, res) {
             const parkData = dataP.body.data.map(elem => new SitePark(elem));
             res.status(200).json(parkData);
         })
+        .catch((error) => {
+            res.json(error.message);
+        });
+}
+
+// https://city-explorer-backend.herokuapp.com/movies?id=1&search_query=seattle&formatted_query=Seattle%2C%20WA%2C%20USA&latitude=47.606210&longitude=-122.332071&created_at=&page=1
+function movieshandeler(req, res) {
+    let cityCode = req.query.country_code;
+    const key = process.env.MOVIE_API_KEY;
+    const url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=whiplash&language=de-DE&region=${cityCode}`;
+    superagent.get(url)
+        .then(dataM => {
+            console.log(dataP.body)
+            const movieData = dataM.body.results.map(elem => new SiteMovie(elem));
+            res.status(200).json(movieData);
+        })
+        .catch((error) => {
+            res.json(error.message);
+        });
 }
 
 function errorhandler(error, req, res) {
@@ -130,13 +151,22 @@ function Sitelocation(city, sitedata) {
 function SitePark(dataa) {
     this.name = dataa.fullName;
     this.address = dataa.addresses.map(item => `${item.line1}. ${item.city} ${item.stateCode} ${item.postalCode},`)[0];
-    this.fee = dataa.entranceFees[0].cost ||'0.00';
+    this.fee = dataa.entranceFees[0].cost || '0.00';
     this.description = dataa.description;
     this.url = dataa.url;
+}
+function SiteMovie(dataa) {
+    this.title = dataa.title;
+    this.overview = dataa.overview;
+    this.average_votes = dataa.vote_average;
+    this.total_votes = dataa.vote_count;
+    this.image_url = `https://image.tmdb.org/t/p/w500${dataa.backdrop_path}`;
+    this.popularity = dataa.popularity;
+    this.released_on = dataa.release_date;
 }
 client.connect()
     .then(() => {
         server.listen(PORT, () => {
-            console.log(`its port is ${PORT}`)
+            console.log(`this port is ${PORT}`)
         });
     });

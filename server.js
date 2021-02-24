@@ -10,15 +10,16 @@ const pg = require('pg');
 const server = express();
 const PORT = process.env.PORT || 3030;
 server.use(cors());
-const client = new pg.Client({ connectionString: process.env.DATABASE_URL,ssl: { rejectUnauthorized: false }});
+const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
 // ssl: { rejectUnauthorized: false }
 
 //route definitions
 server.get('/test', testhandeler);
 server.get('/location', locaHandeler);
 server.get('/weather', weatherHandeler);
-server.get('/parks', parkhandeler)
-server.get('/movies', movieshandeler)
+server.get('/parks', parkhandeler);
+server.get('/movies', movieshandeler);
+server.get('/yelp', yelphandeler)
 server.get('*', notfound);
 server.use(errorhandler);
 server.get('/hi', ((req, res) => {
@@ -46,7 +47,6 @@ function locaHandeler(req, res) {
                 client.query(SQL).then((results) => {
                     res.send(results.rows);
                 });
-                
             } else if (results.rows.find((row) => row.search_query === city)) {
                 res.json(results.rows.find((row) => row.search_query === city));
             } else {
@@ -61,7 +61,6 @@ function locaHandeler(req, res) {
                         locationData.latitude,
                         locationData.longitude,
                     ];
-
                     client
                         .query(SQL, safeValues)
                         .then((results) => {
@@ -112,16 +111,33 @@ function parkhandeler(req, res) {
         });
 }
 
-// https://city-explorer-backend.herokuapp.com/movies?id=1&search_query=seattle&formatted_query=Seattle%2C%20WA%2C%20USA&latitude=47.606210&longitude=-122.332071&created_at=&page=1
 function movieshandeler(req, res) {
     let cityCode = req.query.country_code;
     const key = process.env.MOVIE_API_KEY;
     const url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=whiplash&language=de-DE&region=${cityCode}`;
     superagent.get(url)
         .then(dataM => {
-            console.log(dataP.body)
+            // console.log(dataM.body)
             const movieData = dataM.body.results.map(elem => new SiteMovie(elem));
             res.status(200).json(movieData);
+        })
+        .catch((error) => {
+            res.json(error.message);
+        });
+}
+
+function yelphandeler(req, res) {
+    let city = req.query.search_query;
+    let page = req.query.page;
+    const key = process.env.YELP_API_KEY;
+    let dataPerPage = 5;
+    let offset = ((page - 1) * dataPerPage + 1);
+    const url = `https://api.yelp.com/v3/businesses/search?term=restaurants&location=${city}&limit=${dataPerPage}&offset=${offset}`;
+    superagent.get(url)
+        .set('Authorization', `Bearer ${key}`)
+        .then(dataY => {
+            const yelpData = dataY.body.businesses.map(elem => new SiteYelp(elem));
+            res.status(200).json(yelpData);
         })
         .catch((error) => {
             res.json(error.message);
@@ -163,6 +179,15 @@ function SiteMovie(dataa) {
     this.image_url = `https://image.tmdb.org/t/p/w500${dataa.backdrop_path}`;
     this.popularity = dataa.popularity;
     this.released_on = dataa.release_date;
+}
+
+function SiteYelp(dataa) {
+    this.name = dataa.name;
+    this.image_url = dataa.image_url;
+    this.price = dataa.price;
+    this.rating = dataa.rating;
+    this.url = dataa.url;
+
 }
 client.connect()
     .then(() => {

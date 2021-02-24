@@ -132,7 +132,7 @@ function yelphandeler(req, res) {
     const key = process.env.YELP_API_KEY;
     let dataPerPage = 5;
     let offset = ((page - 1) * dataPerPage + 1);
-    const url = `https://api.yelp.com/v3/businesses/search?location=${city}&limit=${dataPerPage}&offset=${offset}`;
+    const url = `https://api.yelp.com/v3/businesses/search?term=restaurants&location=${city}&limit=${dataPerPage}&offset=${offset}`;
     superagent.get(url)
         .set('Authorization', `Bearer ${key}`)
         .then(dataY => {

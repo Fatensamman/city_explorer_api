@@ -1,16 +1,17 @@
 'use strict';
 //App libraries
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 const superagent = require('superagent');
 const pg = require('pg');
 
 // App setup
 const server = express();
-const PORT = process.env.PORT || 3030;
 server.use(cors());
-const client = new pg.Client({ connectionString: process.env.DATABASE_URL,ssl: { rejectUnauthorized: false } });
+const PORT = process.env.PORT || 3030;
+//const client = new pg.Client({ connectionString: process.env.DATABASE_URL,ssl: { rejectUnauthorized: false } });
+const client = new pg.Client( process.env.DATABASE_URL);
 // ssl: { rejectUnauthorized: false }
 
 //route definitions
@@ -20,11 +21,9 @@ server.get('/weather', weatherHandeler);
 server.get('/parks', parkhandeler);
 server.get('/movies', movieshandeler);
 server.get('/yelp', yelphandeler)
-server.get('*', notfound);
 server.use(errorhandler);
-server.get('/hi', ((req, res) => {
-    res.send('hhhhhhhhhhh');
-}))
+
+server.get('*', notfound);
 
 // functions decleration
 function testhandeler(req, res) {
@@ -133,6 +132,7 @@ function yelphandeler(req, res) {
     let dataPerPage = 5;
     let offset = ((page - 1) * dataPerPage + 1);
     const url = `https://api.yelp.com/v3/businesses/search?term=restaurants&location=${city}&limit=${dataPerPage}&offset=${offset}`;
+  //  const url = `https://api.yelp.com/v3/businesses/search?term=restaurants&location=seattle&limit=1&offset=5`;
     superagent.get(url)
         .set('Authorization', `Bearer ${key}`)
         .then(dataY => {
@@ -140,7 +140,7 @@ function yelphandeler(req, res) {
             res.status(200).json(yelpData);
         })
         .catch((error) => {
-            res.json(error.message);
+            res.json(JSON.parse(error.response.text));
         });
 }
 
@@ -192,6 +192,8 @@ function SiteYelp(dataa) {
 client.connect()
     .then(() => {
         server.listen(PORT, () => {
-            console.log(`this port is ${PORT}`)
+            
+            console.log(`http://localhost:${PORT}`)
+            console.log(`http://localhost:${PORT}/location?city=seattle`)
         });
     });
